@@ -1,24 +1,28 @@
 const appendNumberToBody = number => {
+  const p = document.createElement('h1');
+
   const text = document.createTextNode(number);
 
-  document.body.appendChild(text);
+  p.appendChild(text);
+  document.body.appendChild(p);
 };
 
-(async function executeRustFunction() {
-  const wasmModule = await WebAssembly.instantiateStreaming(
-    fetch('utils.gc.wasm')
-  );
-
-  const result = wasmModule.instance.exports.add_one(3);
-  appendNumberToBody(result);
-})();
-
-(async function executeJSFromRust() {
+(async function main() {
   const importObject = {
     env: {
-      appendNumberToBody
+      appendNumberToBody: rustNum => {
+        appendNumberToBody(`JS function invoked from Rust: ${rustNum}`);
+      }
     }
   };
 
-  WebAssembly.instantiateStreaming(fetch('utils.gc.wasm'), importObject);
+  const wasmModule = await WebAssembly.instantiateStreaming(
+    fetch('utils.gc.wasm'),
+    importObject
+  );
+
+  const result = wasmModule.instance.exports.add_one(3);
+  appendNumberToBody(`Result of Rust fn: ${result}`);
+
+  wasmModule.instance.exports.run();
 })();
