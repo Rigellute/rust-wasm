@@ -4,3 +4,9 @@ script = [
  "wasm-gc target/wasm32-unknown-unknown/release/utils.wasm -o utils.gc.wasm",
  "http"
 ]
+
+[tasks.format]
+description = "Runs the cargo rustfmt plugin."
+install_crate = "rustfmt"
+command = "cargo"
+args = ["fmt"]
